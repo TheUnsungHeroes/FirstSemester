@@ -32,6 +32,7 @@ import stanza
 
 # %%
 
+
 def sentence_segment(txt):
     """
     txt (str): Text which you want to be segmented into sentences.
@@ -72,6 +73,7 @@ tokenize(["Here are some sentences", "they could also be called i"])
 
 # %%
 
+
 def n_grams(tokenlist, n):
     """
     tokenlist (list): A list of tokens
@@ -99,6 +101,7 @@ n_grams(["NLP", "is", "very", "cool"], 3)
 
 # %%
 
+
 def ner_regex(tokenlist):
     """
     tokenlist (list): A list of tokens
@@ -112,12 +115,13 @@ def ner_regex(tokenlist):
     
     return re.findall("([A-Z][a-z]+(?:[\s]*(?:[A-Z][a-z]+))+)", *tokenlist)
 
+
 ner_regex(["Karl Friston's Mom is very cool. But what about Mom? Who is she?"])
 
 
-
-
 # %%
+
+
 def token_frequencies(tokenlist):
     """
     tokenlist (list): A list of tokens
@@ -137,6 +141,7 @@ def token_frequencies(tokenlist):
         flat_list = tokenlist
     
     return {item : flat_list.count(item) for item in flat_list}
+
 
 token_frequencies([["wait", "wait", "do"], ["something", "something", "do"]])
 
@@ -162,7 +167,6 @@ def token_frequencies(tokenlist):
         flat_list = tokenlist
     
     return dict(collections.Counter(flat_list))
-
 
 
 token_frequencies(["NLP", "NLP"])
