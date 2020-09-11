@@ -46,7 +46,7 @@ def sentence_segment(txt):
     return re.split("(?<=[!.?:])\s(?=[A-Z])", txt)
 
 
-sentence_segment("Wait, what happens if I never actually do anything? Even my life would be gone.")
+sentence_segment("Wait, what? How did this happen?")
 
 # %%
 
@@ -92,7 +92,7 @@ def n_grams(tokenlist, n):
         new_list = tokenlist[i:i+n]
 
         if len(new_list) == n:
-           empty_list.append(new_list)
+            empty_list.append(new_list)
     
     return empty_list
 
@@ -140,7 +140,7 @@ def token_frequencies(tokenlist):
     else:
         flat_list = tokenlist
     
-    return {item : flat_list.count(item) for item in flat_list}
+    return {item: flat_list.count(item) for item in flat_list}
 
 
 token_frequencies([["wait", "wait", "do"], ["something", "something", "do"]])
@@ -171,6 +171,8 @@ def token_frequencies(tokenlist):
 
 token_frequencies(["NLP", "NLP"])
 
+# %%
+
 
 def lemmatize_stanza(tokenlist):  # MIssing stuff
     """
@@ -190,6 +192,8 @@ def lemmatize_stanza(tokenlist):  # MIssing stuff
 
 lemmatize_stanza(["These", "are", "all", "greatly", "influencial"])
 
+# %%
+
 
 def postag_stanza(tokenlist):
     """
@@ -198,6 +202,8 @@ def postag_stanza(tokenlist):
     add a part-of-speech (POS) tag to each tokenlist using stanza
     """
     pass
+
+# %%
 
 
 class Text():
