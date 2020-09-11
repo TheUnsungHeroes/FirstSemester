@@ -43,3 +43,5 @@ print(edit_distance("drive", "brief"))
 # DYNAMIC PROGRAMMING SOLUTION:
 
 some_df = edit_distance("drive", "brief")
+
+np.zeros(np.shape(some_df))
