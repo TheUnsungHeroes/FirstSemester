@@ -26,10 +26,12 @@ Additional stuff which you might add is:
     Add plotting functionality for word frequencies
     Add plotting functionality for dependency trees
 """
+# %%
 import re
 import collections
 import stanza
 
+# %%
 # %%
 
 
