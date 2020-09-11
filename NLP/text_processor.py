@@ -30,9 +30,8 @@ import re
 import collections
 import stanza
 
-re.split("[.?!]+\s*", "How many! I mean, how many sentences? How many? I guess we'll never know...")
+# %%
 
-#Should have a look-ahead (to deal with "inc." - "?=[A-Z]" )
 def sentence_segment(txt):
     """
     txt (str): Text which you want to be segmented into sentences.
@@ -43,10 +42,12 @@ def sentence_segment(txt):
     ["NLP is very cool", "It is also useful"]
     """
 
-    return re.split("[.?!]+\s*(?=[A-Z])", txt)
+    return re.split("(?<=[!.?:])\s(?=[A-Z])", txt)
 
 
 sentence_segment("Wait, what happens if I never actually do anything? Even my life would be gone.")
+
+# %%
 
 
 def tokenize(sentences):
@@ -69,6 +70,7 @@ def tokenize(sentences):
 
 tokenize(["Here are some sentences", "they could also be called i"])
 
+# %%
 
 def n_grams(tokenlist, n):
     """
@@ -112,11 +114,7 @@ def ner_regex(tokenlist):
 
 ner_regex(["Karl Friston's Mom is very cool. But what about Mom? Who is she?"])
 
-# %%
-test_dictionary = ["test", "test", "what"]
 
-test_dictionary.count("test")
-# %%
 
 
 # %%
@@ -143,6 +141,7 @@ def token_frequencies(tokenlist):
 token_frequencies([["wait", "wait", "do"], ["something", "something", "do"]])
 
 # %%
+
 
 def token_frequencies(tokenlist):
     """
