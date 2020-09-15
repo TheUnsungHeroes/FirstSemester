@@ -42,9 +42,12 @@ def count_n_grams(ngram):
     return dict(collections.Counter(ngram))
 
 
-def count_to_probability(bi_dict, uni_dict):
-    return {x : bi_dict[x]/uni_dict.get(x[0]) for x in bi_dict}
-
+def count_to_probability(uni_dict, bi_dict=False):
+    if bi_dict:
+        return {x : bi_dict[x]/uni_dict.get(x[0]) for x in bi_dict}
+    else:
+        summing = sum(uni_dict.values())
+        return {x : uni_dict[x]/summing for x in uni_dict}
 
 #PIPELINE:
 url = 'http://www.glozman.com/TextPages/03%20-%20The%20Return%20Of%20The%20King.txt'  # insert url of book you want to scrape
@@ -68,10 +71,12 @@ prepped_txt = count_n_grams(prepped_txt)
 
 #PROBABILITIES
 
-prepped_prob = count_to_probability(prepped_txt, prepped_txt_uni)
+prepped_prob = count_to_probability(prepped_txt_uni, prepped_txt)
+prepped_prob_uni = count_to_probability(prepped_txt_uni)
 
+#Sorted Freq and Prob
 sorted_prepped_prob = sorted(prepped_prob, key=prepped_prob.get, reverse=True)
-
+sorted_prob_uni = sorted(prepped_prob_uni, key=prepped_prob_uni.get, reverse=True)
 sorted_freqs = sorted(prepped_txt, key=prepped_txt.get, reverse=True)
 
 # NOTE:
@@ -82,3 +87,4 @@ The skew is due to some combinations only occuring once.'''
 
 sorted_freqs[5:15]
 sorted_prepped_prob[30:40]
+sorted_prob_uni[0:10]
