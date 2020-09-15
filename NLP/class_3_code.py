@@ -88,3 +88,18 @@ The skew is due to some combinations only occuring once.'''
 sorted_freqs[5:15]
 sorted_prepped_prob[30:40]
 sorted_prob_uni[0:10]
+
+### NOTE: Does not work for all words! But damn it produces some great sentences
+
+def random_sentence(dictionary, start_word = "<s>", n = 2):
+    sentence = start_word
+    while start_word != "</s>":
+        start_dictionary = {x : dictionary.get(x) for x in dictionary if x[0] == start_word}
+        next_word = max(start_dictionary, key = start_dictionary.get)[n-1]
+        sentence = f"{sentence} {next_word}"
+        start_word = next_word
+    return sentence
+
+random_sentence(prepped_prob, start_word="which")
+    
+    
