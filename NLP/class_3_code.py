@@ -1,7 +1,11 @@
+# %% IMPORTS
+
 import collections
 import re
 import requests
+import random
 
+# %% FUNCTIONS
 
 def download_txt(url, name=None, write=True):
     if write and name is None:
@@ -14,7 +18,7 @@ def download_txt(url, name=None, write=True):
 
 
 def prep_text(text):
-    sep_text = re.split(r"(?:[;\?\.:!_\v]+[\s])", text)
+    sep_text = re.split(r"[\s]*[']*(?:(?:[\?\.:!_\v]|(?:\\n))+[']*[\s])", text)
     return [f"<s> {string} </s>" for string in sep_text]
 
 
@@ -49,7 +53,26 @@ def count_to_probability(uni_dict, bi_dict=False):
         summing = sum(uni_dict.values())
         return {x : uni_dict[x]/summing for x in uni_dict}
 
-#PIPELINE:
+
+def random_max_sentence(dictionary, start_word = "<s>", n = 2):
+    sentence = start_word
+    while start_word != "</s>":
+        start_dictionary = {x : dictionary.get(x) for x in dictionary if x[0] == start_word}
+        next_word = max(start_dictionary, key = start_dictionary.get)[n-1]
+        sentence = f"{sentence} {next_word}"
+        start_word = next_word
+    return sentence
+
+def random_sentence(dictionary, start_word = "<s>", n = 2):
+    sentence = start_word
+    while start_word != "</s>":
+        start_dictionary = {x : dictionary.get(x) for x in dictionary if x[0] == start_word}
+        next_word = random.choices(list(start_dictionary.keys()), weights = list(start_dictionary.values()), k = 1)[0][n-1]
+        sentence = f"{sentence} {next_word}"
+        start_word = next_word
+    return sentence
+
+# %% DOWNLOAD AND PROCESS PIPELINE
 url = 'http://www.glozman.com/TextPages/03%20-%20The%20Return%20Of%20The%20King.txt'  # insert url of book you want to scrape
 book_name = "lotr3.txt"  # call it something
 #download_txt(url, bookname)  # download it
@@ -79,6 +102,7 @@ sorted_prepped_prob = sorted(prepped_prob, key=prepped_prob.get, reverse=True)
 sorted_prob_uni = sorted(prepped_prob_uni, key=prepped_prob_uni.get, reverse=True)
 sorted_freqs = sorted(prepped_txt, key=prepped_txt.get, reverse=True)
 
+# %% OVERVIEW OF FREQS AND PROBS
 # NOTE:
 ''' The first 4 most frequent cases are completely bogus. Instead,
 it makes more sense to look at non-trivial cases. Almost the same can be said
@@ -89,17 +113,11 @@ sorted_freqs[5:15]
 sorted_prepped_prob[30:40]
 sorted_prob_uni[0:10]
 
-### NOTE: Does not work for all words! But damn it produces some great sentences
 
-def random_sentence(dictionary, start_word = "<s>", n = 2):
-    sentence = start_word
-    while start_word != "</s>":
-        start_dictionary = {x : dictionary.get(x) for x in dictionary if x[0] == start_word}
-        next_word = max(start_dictionary, key = start_dictionary.get)[n-1]
-        sentence = f"{sentence} {next_word}"
-        start_word = next_word
-    return sentence
+# %% GENERATE RANDOM SENTENCE
 
-random_sentence(prepped_prob, start_word="which")
-    
-    
+#random_max_sentence(prepped_prob, start_word="ready") ### NOTE: Does not work for all words! But damn it produces some great sentences
+
+random_sentence(prepped_prob)
+
+# %%
