@@ -1,4 +1,4 @@
-"""
+""" LASSE go to facebook
 This script contain an example Text class
 
 Each function contains:
@@ -173,26 +173,26 @@ def token_frequencies(tokenlist):
 
 token_frequencies(["NLP", "NLP"])
 
+
 # %%
 
-
-def lemmatize_stanza(tokenlist):  # MIssing stuff
+def lemmatize_stanza(tokenlist):  
     """
     tokenlist (list): A list of tokens
 
     lemmatize a tokenlist using stanza
     """
-
-    nlp = stanza.Pipeline(lang='en', processors="lemma",
-                          tokenize_pretokenized=True)
+    
+    nlp = stanza.Pipeline(lang='en', processors='tokenize,mwt,pos,lemma', tokenize_pretokenized=True, use_gpu = False)
     doc = nlp(tokenlist)
 
-    res = [word.lemma for word in doc]
-
-    return res
+    return [word.lemma for sentence in doc.sentences for word in sentence.words]
     
 
-lemmatize_stanza(["These", "are", "all", "greatly", "influencial"])
+lemmatize_stanza([["Hello","this", "stars", "Blanka","bearing","are","starts"], ["These", "are", "all", "greatly", "influencial"]])
+
+
+# %%
 
 # %%
 
@@ -203,14 +203,19 @@ def postag_stanza(tokenlist):
 
     add a part-of-speech (POS) tag to each tokenlist using stanza
     """
-    pass
+    nlp = stanza.Pipeline(lang="en", processors="tokenize,mwt,pos", tokenize_pretokenized =True, use_gpu = False)
+    doc = nlp(tokenlist)
+
+    return [(word.text, word.pos) for sentence in doc.sentences for word in sentence.words]
+
+postag_stanza([["In", "all", "other", "ways", "we", "are", "screwed"]])
 
 # %%
 
 
 class Text():
     def __init__(self, txt):
-        self.sentences = sentence_segment()
+        self.sentences = sentence_segment(txt)
         self.tokens = tokenize(self.sentences)
 
     def ner(self, method="regex"):
