@@ -44,7 +44,10 @@ class Text():
 
     def ner(self, method="regex"):
         res = list(map(ner_regex, self.sentences))
-        return res
+        names = [name for name in res if name]
+        names = tokenize(names[0])
+
+        return names
 
     def get_df(self):
         """
@@ -53,13 +56,20 @@ class Text():
         """
         tokens = self.tokens
 
-        return pd.DataFrame(lemma_pos_stanza(tokens), columns = ["Sent_No", "Word_No","Word", "Lemma", "POS"])
+        names = test_sentence.ner()
+
+        names_list = []
+        for sentence in tokens:
+            for word in sentence:
+                names_list.append(word in names[0])
+
+        df = pd.DataFrame(lemma_pos_stanza(tokens), columns = ["Sent_No", "Word_No","Word", "Lemma", "POS"])
+        df["NE"] = names_list
+        return df
 
 # %% TEST
 
-test_sentence = Text("Hey guys! How is it hanging? Does this even work? Who knows!")
-
-test_sentence.tokens
+test_sentence = Text("Hey guys! Karl Friston here. How is it hanging? Does this even work? Who knows!")
 
 test_sentence.get_df()
 # %%
