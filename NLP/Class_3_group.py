@@ -124,14 +124,14 @@ def random_generator(dictionary, start_word = "<s>", n =2):
     return sentence
 
 
-#random_generator(n_prob(3), ("The", "man"), 3)
+random_generator(n_prob(3), ("Our", "House"), 3)
 
 # %% for n-grams
 
 def n_prob(n):
     n_dict = frequency(n_grams(tokenize(sentence_segment(Dune)),n))
     sub_dict = frequency(n_grams(tokenize(sentence_segment(Dune)),n-1))
-    return {key:n_dict.get(key)/sub_dict.get(key[:-1]) for key in n_dict}
+    return {key: n_dict.get(key)/sub_dict.get(key[:-1]) for key in n_dict}
 
 
 # %%
