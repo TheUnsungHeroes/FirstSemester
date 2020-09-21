@@ -57,10 +57,10 @@ class Text():
         Returns a list of lists containing the tokens
         of the named entities in the text.
         '''
-        
+
         res = list(map(ner_regex, self.sentences))
         names = [name for name in res if name]
-        names = tokenize(names[0])
+        names = tokenize(names[0])[0]
 
         return names
 
@@ -76,7 +76,7 @@ class Text():
         names_list = []
         for sentence in tokens:
             for word in sentence:
-                names_list.append(word in names[0])
+                names_list.append(word in names)
 
         df = pd.DataFrame(lemma_pos_stanza(tokens), columns = ["Sent_No", "Word_No","Word", "Lemma", "POS"])
         df["NE"] = names_list
@@ -85,6 +85,8 @@ class Text():
 # %% TEST
 
 test_sentence = Text("Hey guys! Karl Friston here. How is it hanging? Does this even work? Who knows!")
+
+#test_sentence.ner()
 
 test_sentence.get_df()
 # %%
