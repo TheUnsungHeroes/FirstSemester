@@ -38,11 +38,26 @@ from text_processor_functions import *
 # %%
 
 class Text():
+    '''
+    This class contains the entire pipeline of pre-processing
+    of text using the text_processor_functions and stanza.
+    '''
     def __init__(self, txt):
+
+        '''Initializing the class. This includes:
+        1. sentences = the sentences of the text in a list.
+        2. tokens = the tokens of the sentences in a list of lists. '''
+
         self.sentences = sentence_segment(txt)
         self.tokens = tokenize(self.sentences)
 
     def ner(self, method="regex"):
+
+        '''
+        Returns a list of lists containing the tokens
+        of the named entities in the text.
+        '''
+        
         res = list(map(ner_regex, self.sentences))
         names = [name for name in res if name]
         names = tokenize(names[0])
