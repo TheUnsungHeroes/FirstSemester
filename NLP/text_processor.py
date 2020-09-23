@@ -31,7 +31,7 @@ import re
 import collections
 import stanza
 import pandas as pd 
-from text_processor_functions import * 
+#from text_processor_functions import * 
 
 
 # %%
@@ -84,9 +84,64 @@ class Text():
 
 # %% TEST
 
-test_sentence = Text("Hey guys! Karl Friston here. How is it hanging? Does this even work? Who knows!")
+#test_sentence = Text("Hey guys! Karl Friston here. How is it hanging? Does this even work? Who knows!")
 
 #test_sentence.ner()
 
-test_sentence.get_df()
+#test_sentence.get_df()
+# %%
+
+## CLASS EXAMPLE:
+
+test_string = "hello "
+test_string.strip()
+
+class Person():
+    def __init__(self, name, birthyear):
+        self.name = name
+        self.birthyear = birthyear
+
+    def rough_age(self):
+        return 2020-self.birthyear
+
+    def __str__(self):
+        return str((self.name, self.birthyear, "dicks"))
+# %%
+
+class Text():
+    '''
+    This class contains the entire pipeline of pre-processing
+    of text using the text_processor_functions and stanza.
+    '''
+    def __init__(self, txt):
+
+        '''Initializing the class. This includes:
+        1. sentences = the sentences of the text in a list.
+        2. tokens = the tokens of the sentences in a list of lists. '''
+        self.sentences = sentence_segment(txt)
+        self.tokens = tokenize(self.sentences)
+        
+    def ner(self, method="regex"):
+        self.names = list(map(ner_regex, self.sentences))
+        self.name_tokens = tokenize[self.names]
+
+        '''
+        Returns a list of lists containing the tokens
+        of the named entities in the text.
+        '''
+
+        return self.names
+
+    def get_df(self):
+        """
+        returns a dataframe containing the columns:
+        sentence number, token, lemma, pos-tag, named-entity
+        """
+        dataframez = lemma_pos_stanza(self.tokens)
+        columns = ["Sent_No", "Word_No", "Token", "Lemma", "POS"]
+        return pd.DataFrame(dataframez, columns = columns)
+
+test = Text("Karl Friston has a beautiful and lovely ass. How about this for a sentence?")
+
+test.get_df()
 # %%

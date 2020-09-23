@@ -39,6 +39,10 @@ def tokenize(sentences):
         empty_list.append(new_list)
     return empty_list
 
+
+
+
+
 # %%
 
 
@@ -182,3 +186,46 @@ def lemma_pos_stanza(tokenlist):
 # %%
 # %%
 
+
+
+def lemma_pos_stanza(tokenlist):  
+    """
+    tokenlist (list): A list of tokens
+
+    lemmatize a tokenlist using stanza
+    """
+    
+    nlp = stanza.Pipeline(lang='en', processors='tokenize,mwt,pos,lemma', tokenize_pretokenized=True, use_gpu = False)
+    doc = nlp(tokenlist)
+
+    return [(sentence_number+1, word.id, word.text, word.lemma, word.pos) for sentence_number, sentence in enumerate(doc.sentences) for word in sentence.words]
+    
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# %%
