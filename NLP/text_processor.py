@@ -90,3 +90,7 @@ test_sentence = Text("Hey guys! Karl Friston here. How is it hanging? Does this 
 
 test_sentence.get_df()
 # %%
+
+## CLASS EXAMPLES:
+
+class

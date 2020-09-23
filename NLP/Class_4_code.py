@@ -90,5 +90,4 @@ def test_naive_bayes(testdoc, logprior, log_like_pos, log_like_neg, V):
 
 log_prior, log_like_pos, log_like_neg, V = naive_bayes(training_set)
 
-
 test_naive_bayes(test_set, log_prior, log_like_pos, log_like_neg, V)
