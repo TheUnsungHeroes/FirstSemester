@@ -145,3 +145,9 @@ test = Text("Karl Friston has a beautiful and lovely ass. How about this for a s
 
 test.get_df()
 # %%
+test_sentence.get_df()
+# %%
+
+## CLASS EXAMPLES:
+
+class
