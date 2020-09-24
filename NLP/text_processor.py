@@ -31,7 +31,7 @@ import re
 import collections
 import stanza
 import pandas as pd 
-#from text_processor_functions import * 
+from text_processor_functions import * 
 
 
 # %%
@@ -82,13 +82,21 @@ class Text():
         df["NE"] = names_list
         return df
 
+    def get_ngrams(self, n):
+        """
+        returns n-grams on text
+        """
+        return n_grams(self.tokens, n)
+
 # %% TEST
 
-#test_sentence = Text("Hey guys! Karl Friston here. How is it hanging? Does this even work? Who knows!")
+test_sentence = Text("Hey guys! Karl Friston here. How is it hanging? Does this even work? Who knows!")
 
-#test_sentence.ner()
+test_sentence.ner()
 
-#test_sentence.get_df()
+test_sentence.get_df()
+
+test_sentence.get_ngrams(2)
 # %%
 
 ## CLASS EXAMPLE:
@@ -121,7 +129,7 @@ class Text():
         self.sentences = sentence_segment(txt)
         self.tokens = tokenize(self.sentences)
         
-    def ner(self, method="regex"):
+    def ner(self, method= "regex"):
         self.names = list(map(ner_regex, self.sentences))
         self.name_tokens = tokenize[self.names]
 
@@ -140,14 +148,19 @@ class Text():
         dataframez = lemma_pos_stanza(self.tokens)
         columns = ["Sent_No", "Word_No", "Token", "Lemma", "POS"]
         return pd.DataFrame(dataframez, columns = columns)
+    
+
+
 
 test = Text("Karl Friston has a beautiful and lovely ass. How about this for a sentence?")
 
 test.get_df()
+
+
 # %%
 test_sentence.get_df()
 # %%
 
 ## CLASS EXAMPLES:
 
-class
+
