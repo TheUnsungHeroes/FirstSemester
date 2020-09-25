@@ -39,6 +39,10 @@ def tokenize(sentences):
         empty_list.append(new_list)
     return empty_list
 
+
+
+
+
 # %%
 
 
@@ -54,14 +58,16 @@ def n_grams(tokenlist, n):
     >>> n_grams(tokens, n=2)
     [["NLP", "is"], ["is", "very"], ["very", "cool"]]
     """
+    if n == 1:
+        return tokenlist
     empty_list = []
-
+    
     for i in range(len(tokenlist)-1):
-        new_list = tokenlist[i:i+n]
+        new_list = tuple(tokenlist[i:i+n])
 
         if len(new_list) == n:
             empty_list.append(new_list)
-    
+            
     return empty_list
 
 
@@ -182,3 +188,46 @@ def lemma_pos_stanza(tokenlist):
 # %%
 # %%
 
+
+
+def lemma_pos_stanza(tokenlist):  
+    """
+    tokenlist (list): A list of tokens
+
+    lemmatize a tokenlist using stanza
+    """
+    
+    nlp = stanza.Pipeline(lang='en', processors='tokenize,mwt,pos,lemma', tokenize_pretokenized=True, use_gpu = False)
+    doc = nlp(tokenlist)
+
+    return [(sentence_number+1, word.id, word.text, word.lemma, word.pos) for sentence_number, sentence in enumerate(doc.sentences) for word in sentence.words]
+    
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# %%
