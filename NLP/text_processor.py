@@ -93,7 +93,7 @@ class Text():
 test_sentence = Text("Hey guys! Karl Friston here. How is it hanging? Does this even work? Who knows!")
 
 test_sentence.get_df()
-
+test_sentence.tokens
 test_sentence.get_ngrams(2)
 # %%
 
