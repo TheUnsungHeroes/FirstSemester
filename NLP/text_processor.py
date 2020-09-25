@@ -86,7 +86,7 @@ class Text():
         """
         returns n-grams on text
         """
-        return n_grams(self.tokens, n)
+        return 
 
 # %% TEST
 
@@ -95,7 +95,7 @@ test_sentence = Text("Hey guys! Karl Friston here. How is it hanging? Does this 
 test_sentence.ner()
 
 test_sentence.get_df()
-
+test_sentence.tokens
 test_sentence.get_ngrams(2)
 # %%
 
