@@ -34,16 +34,18 @@ def NaiveBayes(dataframe):
     ## INITIALIZE DICTIONARIES:
     spam_words = {}
     ham_words = {}
-    total_words = {}
+    
 
     train, test = model_selection.train_test_split(data)
     
-    spam = train[train["category"== "spam"]]
-    ham = train[train["category"== "ham"]]
+    spam = train[train["category"]== "spam"]
+    ham = train[train["category"]== "ham"]
 
-    all_words = ''.join(dataframe['sentence'].tolist())
+    all_words = Text(' '.join(dataframe['sentence'].tolist()))
+    word_freq = all_words.get_freq()
 
-    return all_words
+
+    return word_freq
     
     #for i, row in dataframe.iterrows():
     #    new_sen, current_category = Text(row["sentence"]), row["category"]
@@ -60,7 +62,7 @@ NaiveBayes(data)
 #train[0:10]
 #%%
 #
-
+#data[data["category"] == "spam"]
 #%%
 
 #let's get the priors for the classes (count freq of spam and ham in training set)
@@ -110,74 +112,74 @@ NaiveBayes(data)
 
 
 
-def naive_bayes(D):
-    #initialize 
-    spams = 0
-    hams = 0
-    spam_words = []
-    ham_words = []
-    split_text = re.split("[\s]*\n[\s]*", D.strip())
-    total_count = len(split_text)
-    all_words = get_words(split_text)
-    log_likelihood = {}
+# def naive_bayes(D):
+#     #initialize 
+#     spams = 0
+#     hams = 0
+#     spam_words = []
+#     ham_words = []
+#     split_text = re.split("[\s]*\n[\s]*", D.strip())
+#     total_count = len(split_text)
+#     all_words = get_words(split_text)
+#     log_likelihood = {}
 
-    for i in split_text:
-        if i[0] == "+":
-            positives += 1
-            text = re.split("[\s]*\n[\s]*", i.strip())
-            positive_words.append(i)
-        else:
-            negatives += 1
-            text = re.split("[\s]*\n[\s]*", i.strip())
-            negative_words.append(i)
+#     for i in split_text:
+#         if i[0] == "+":
+#             positives += 1
+#             text = re.split("[\s]*\n[\s]*", i.strip())
+#             positive_words.append(i)
+#         else:
+#             negatives += 1
+#             text = re.split("[\s]*\n[\s]*", i.strip())
+#             negative_words.append(i)
 
 
-    log_prior = {"+": positives/total_count, "-": negatives/total_count}
+#     log_prior = {"+": positives/total_count, "-": negatives/total_count}
     
-    positive_words = get_words(positive_words)
-    negative_words = get_words(negative_words)
+#     positive_words = get_words(positive_words)
+#     negative_words = get_words(negative_words)
 
-    counts_total = token_frequencies(all_words)
-    counts_positive = token_frequencies(positive_words)
-    counts_negative = token_frequencies(negative_words)
+#     counts_total = token_frequencies(all_words)
+#     counts_positive = token_frequencies(positive_words)
+#     counts_negative = token_frequencies(negative_words)
 
-    cardinal = len(counts_total)
-    sum_pos = sum(counts_positive.values())
-    sum_neg = sum(counts_negative.values())
+#     cardinal = len(counts_total)
+#     sum_pos = sum(counts_positive.values())
+#     sum_neg = sum(counts_negative.values())
 
-    pos_dict = {}
-    neg_dict = {}
+#     pos_dict = {}
+#     neg_dict = {}
 
-    for word in all_words:
-        if counts_positive.get(word) != None:
-            pos_freq = counts_positive[word]
-        else: 
-            pos_freq = 0
-        if counts_negative.get(word) != None:
-            neg_freq = counts_negative[word]
-        else:
-            neg_freq = 0
-        pos_dict[word] = (pos_freq+1)/(sum_pos + cardinal)
-        neg_dict[word] = (neg_freq+1)/(sum_neg + cardinal)
-
-
-    return (log_prior, pos_dict, neg_dict, list(counts_total.keys()))
+#     for word in all_words:
+#         if counts_positive.get(word) != None:
+#             pos_freq = counts_positive[word]
+#         else: 
+#             pos_freq = 0
+#         if counts_negative.get(word) != None:
+#             neg_freq = counts_negative[word]
+#         else:
+#             neg_freq = 0
+#         pos_dict[word] = (pos_freq+1)/(sum_pos + cardinal)
+#         neg_dict[word] = (neg_freq+1)/(sum_neg + cardinal)
 
 
-def test_naive_bayes(testdoc, logprior, log_like_pos, log_like_neg, V):
-    positive,negative = logprior.values()
-    tokenized_test = tokenize(sentence_segment(testdoc))
+#     return (log_prior, pos_dict, neg_dict, list(counts_total.keys()))
+
+
+# def test_naive_bayes(testdoc, logprior, log_like_pos, log_like_neg, V):
+#     positive,negative = logprior.values()
+#     tokenized_test = tokenize(sentence_segment(testdoc))
     
-    for i in tokenized_test[0]:
-        if i in V:
-                positive = positive * log_like_pos.get(i)
-                negative = negative * log_like_neg.get(i)
+#     for i in tokenized_test[0]:
+#         if i in V:
+#                 positive = positive * log_like_pos.get(i)
+#                 negative = negative * log_like_neg.get(i)
 
-    if positive > negative:
-        return ("positive", positive)
-    else:
-        return ("negative", negative)
+#     if positive > negative:
+#         return ("positive", positive)
+#     else:
+#         return ("negative", negative)
 
-log_prior, log_like_pos, log_like_neg, V = naive_bayes(training_set)
+# log_prior, log_like_pos, log_like_neg, V = naive_bayes(training_set)
 
-test_naive_bayes(test_set, log_prior, log_like_pos, log_like_neg, V)
+# test_naive_bayes(test_set, log_prior, log_like_pos, log_like_neg, V)
