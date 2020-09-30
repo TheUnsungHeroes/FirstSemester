@@ -84,6 +84,9 @@ class Text():
         """
         return [n_grams(token, n) for token in self.tokens]
 
+    def get_freq(self):
+        return token_frequencies(self.tokens)
+
 # %% TEST
 
 test_sentence = Text("Hey guys! Karl Friston here. How is it hanging? Does this even work? Who knows!")
