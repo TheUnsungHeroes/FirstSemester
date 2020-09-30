@@ -3,6 +3,16 @@ import getopt
 import os
 import math
 import operator
+import collections
+
+
+
+def update_count(counter1, counter2):
+  for i in counter2:
+    if i in counter1.keys():
+      counter1[i] += counter2[i]
+    else:
+      counter1[i] = counter2.get(i)
 
 class NaiveBayes:
   class TrainSplit:
@@ -26,15 +36,21 @@ class NaiveBayes:
     self.FILTER_STOP_WORDS = False
     self.BOOLEAN_NB = False
     self.BEST_MODEL = False
-    self.stopList = set(self.readFile('data/english.stop'))
+    #self.stopList = set(self.readFile('data/english.stop'))
     self.numFolds = 10
     self.posCount = 0
     self.negCount = 0
+    self.posCountWord = 0
+    self.negCountWord = 0
     self.posPrior = 0
     self.negPrior = 0
     self.posDict = {}
     self.negDict = {}
-    
+    self.totalDict = {}
+    self.cardinal = 0
+    self.posLikelihood = {}
+    self.negLikelihood = {}
+
     # TODO: Add any data structure initialization code here
 
 
@@ -54,15 +70,56 @@ class NaiveBayes:
   # or binarization in your best model, write the code accordingl
   # 
   # Hint: Use filterStopWords(words) defined below
+  
   def classify(self, words):
     """ TODO
       'words' is a list of words to classify. Return 'pos' or 'neg' classification.
     """
-    # Write code here
+    # Write code here:
 
-    return 'pos'
+    total_count = self.posCount + self.negCount
+    self.posPrior = math.log(self.posCount / total_count)
+    self.negPrior = math.log(self.negCount / total_count)
+
+    ## CHECK FOR OVERLAPS:
+
+    posDict_copy = {x:0 for x in self.posDict}
+    negDict_copy = {x:0 for x in self.negDict}
+    
+    ## FIND NON-OVERLAPS
+    self.posLikelihood = self.posDict.copy()
+    update_count(self.posLikelihood, negDict_copy)
+
+    self.negLikelihood = self.negDict.copy()
+    update_count(self.negLikelihood, posDict_copy)
+
+    sum_pos = sum(self.posLikelihood.values())
+    sum_neg = sum(self.negLikelihood.values())
+    cardinal = len(self.totalDict)
+
+    ## LAPLACE SMOOTHING:
+    self.posLikelihood = {x:math.log((self.posLikelihood.get(x)+1)/(sum_pos + cardinal)) for x in self.posLikelihood}
+    self.negLikelihood = {x:math.log((self.negLikelihood.get(x)+1)/(sum_neg + cardinal)) for x in self.negLikelihood}
+
+    all_words = self.totalDict.keys()
+    pos_value = self.posPrior
+    neg_value = self.negPrior
+
+    for category in ("pos", "neg"):
+        for word in words:
+            if category == "pos":
+                if word in all_words:
+                    pos_value += self.posLikelihood.get(word)
+            else:
+                if word in all_words:
+                    neg_value += self.negLikelihood.get(word)
+
+    if pos_value > neg_value: 
+      return 'pos' 
+    else:
+      return 'neg'
   
-
+  
   def addExample(self, klass, words):
     """
      * TODO
@@ -72,10 +129,59 @@ class NaiveBayes:
      * in the NaiveBayes class.
      * Returns nothing
     """
-    # Write code here
+    ## REMOVE PUNCTUATION:
+    words = [word for word in words if word not in ["!", ",", ".", "(", ")", "?", "-", "'", '"', ":", ";"]]
+    
+    if self.BOOLEAN_NB == True:
+      words = [word for word in set(words)]
+    
+    #word_count = collections.Counter(words)
     
 
-    pass
+    if klass == "pos":
+      self.posCount += 1
+      for word in words:
+        self.posDict[word] = self.posDict.get(word, 0) + 1
+        self.posCountWord += 1
+        self.totalDict[word] = self.totalDict.get(word, 0) + 1
+      #self.posPrior = math.log(self.posCount / (self.posCount + self.negCount))
+      #update_count(self.posDict, word_count) #update_count(self.posDict, word_count)
+    else:
+      self.negCount += 1
+      for word in words:
+        self.negDict[word] = self.negDict.get(word, 0) + 1
+        self.negCountWord += 1
+        self.totalDict[word] = self.totalDict.get(word, 0) + 1
+      #self.negPrior = math.log(self.negCount / (self.posCount + self.negCount))
+    #   update_count(self.negDict, word_count) #update_count(self.negDict, word_count)
+    
+    # update_count(self.totalDict, word_count)
+    # #self.cardinal = len(self.totalDict)
+
+    # ## REVERT BACK TO DICTS:
+    # posDict_copy = collections.Counter({x:0 for x in dict(self.posDict)})
+    # negDict_copy = collections.Counter({x:0 for x in dict(self.negDict)})
+    
+    # ## FIND NON-OVERLAPS
+    # self.posLikelihood = self.posDict.copy()
+    # update_count(self.posLikelihood, negDict_copy)
+
+    # self.negLikelihood = self.negDict.copy()
+    # update_count(self.negLikelihood, posDict_copy)
+
+    # new_pos = dict(self.posLikelihood)
+    # new_neg = dict(self.negLikelihood)
+
+    # sum_pos = sum(new_pos.values())
+    # sum_neg = sum(new_neg.values())
+    # cardinal = len(self.totalDict)
+
+    # ## LAPLACE SMOOTHING:
+    # self.posLikelihood = {x:math.log((new_pos.get(x)+1)/(sum_pos + cardinal)) for x in new_pos}
+    # self.negLikelihood = {x:math.log((new_neg.get(x)+1)/(sum_neg + cardinal)) for x in new_neg}
+
+
+
       
 
   # END TODO (Modify code beyond here with caution)
@@ -290,5 +396,20 @@ def main():
 if __name__ == "__main__":
     main()
 
-nb = NaiveBayes()
-nb.readFile()
+# nb = NaiveBayes()
+# text_test = nb.readFile(r"C:\Users\emilr\OneDrive - Aarhus universitet\Uni\CogSci - Master's-DESKTOP-TNA0AED\Study Group Exercises\FirstSemester\NLP\IMDB_reviews-master\arch_files\data\imdb1\pos\cv000_29590.txt")
+# nb.addExample("pos", text_test)
+
+# test_1 = collections.Counter({"a":1, "b":1})
+# test_2 = collections.Counter({"a":1, "d":0})
+
+# test_1.update(test_2)
+
+# test_1
+
+testy = collections.Counter({})
+testy.update(collections.Counter({"a":2, "b":2}))
+
+update_count(testy, collections.Counter({"a":3, "b":4}))
+
+testy
