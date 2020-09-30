@@ -28,6 +28,13 @@ class NaiveBayes:
     self.BEST_MODEL = False
     self.stopList = set(self.readFile('data/english.stop'))
     self.numFolds = 10
+    self.posCount = 0
+    self.negCount = 0
+    self.posPrior = 0
+    self.negPrior = 0
+    self.posDict = {}
+    self.negDict = {}
+    
     # TODO: Add any data structure initialization code here
 
 
@@ -66,6 +73,7 @@ class NaiveBayes:
      * Returns nothing
     """
     # Write code here
+    
 
     pass
       
@@ -281,3 +289,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+nb = NaiveBayes()
+nb.readFile()

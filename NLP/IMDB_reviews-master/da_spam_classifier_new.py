@@ -28,12 +28,12 @@ train, test = model_selection.train_test_split(data)
 def NaiveBayes(dataframe):
 
     ## PRIORS:
-    spam_count = (dataframe.category == "spam").sum()
-    ham_count = (dataframe.category == "ham").sum()
-    total_count = len(dataframe)
+    spam_count = (dataframe.category == "spam").sum() #add_example
+    ham_count = (dataframe.category == "ham").sum() #add_example
+    total_count = len(dataframe) #add_example
 
-    spam_prior = math.log(spam_count / total_count)
-    ham_prior = math.log(ham_count / total_count)
+    spam_prior = math.log(spam_count / total_count) #classify
+    ham_prior = math.log(ham_count / total_count) #classify
 
     ## INITIALIZE DICTIONARIES:
     
