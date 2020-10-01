@@ -154,7 +154,8 @@ RUNNING THE CODE
 In your terminal, execute
 
 ```
-$ python NaiveBayesPy3_no_hints.py  data/imdb1
+$ python NaiveBayesPy3_no_hints.py -m  data/imdb1
+python NaiveBayesPy3_no_hints.py   data/imdb1
 ```
 
 Note that this allows you to specify other data sets in the process of your

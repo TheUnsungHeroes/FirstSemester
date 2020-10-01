@@ -4,12 +4,24 @@ import os
 import math
 import operator
 import collections
+from text_processor_functions import n_grams
 
+## SCORES:
+# NaiveBayes (vintage): 81.7 %
+# NaiveBayes (filter): 81.0 % 
+# Boolean NaiveBayes: 76.8 %
+# Best Model (Boolean, Bias, Negation, Bigram): 84.3 % 
+
+#NEGATIONS
+#negations = ["arent","aren't","no","not","none","no-one","nobody","nothing","neither","nowhere","never","hardly","scarcely","barely","doesn't","isn't","wasn't","shouldn't","wouldn't","couldn't","won't","can't","don't","doesnt","isnt","wasnt","shouldnt","wouldnt","couldnt","wont","cant","dont","aint","ain't"]
+
+negations = ["not","isn't","wasn't","isnt","wasnt","aint","ain't"]
+qualifiers = ["very", "quite", "rather", "somewhat", "more", "most", "less", "least", "too", "so", "just", "enough", "indeed", "still", "almost", "fairly", "really", "pretty", "even"]
 
 
 def update_count(counter1, counter2):
   for i in counter2:
-    if i in counter1.keys():
+    if counter1.get(i) != None:
       counter1[i] += counter2[i]
     else:
       counter1[i] = counter2.get(i)
@@ -36,7 +48,12 @@ class NaiveBayes:
     self.FILTER_STOP_WORDS = False
     self.BOOLEAN_NB = False
     self.BEST_MODEL = False
-    #self.stopList = set(self.readFile('data/english.stop'))
+    self.NEGATION = False
+    self.BIGRAM = False
+    self.newFold = True
+    self.BIAS = False
+    self.QUALIFY = False
+    self.stopList = set(self.readFile('data/english.stop'))
     self.numFolds = 10
     self.posCount = 0
     self.negCount = 0
@@ -76,34 +93,43 @@ class NaiveBayes:
       'words' is a list of words to classify. Return 'pos' or 'neg' classification.
     """
     # Write code here:
+    if self.newFold:
+      total_count = self.posCount + self.negCount
+      self.posPrior = math.log(self.posCount / total_count)
+      self.negPrior = math.log(self.negCount / total_count)
 
-    total_count = self.posCount + self.negCount
-    self.posPrior = math.log(self.posCount / total_count)
-    self.negPrior = math.log(self.negCount / total_count)
+      ## CHECK FOR OVERLAPS:
 
-    ## CHECK FOR OVERLAPS:
+      # posDict_copy = {x:0 for x in self.posDict}
+      # negDict_copy = {x:0 for x in self.negDict}
+      posDict_copy = self.posDict.fromkeys(self.posDict, 0)
+      negDict_copy = self.negDict.fromkeys(self.negDict, 0)
+      
+      ## FIND NON-OVERLAPS
+      self.posLikelihood = self.posDict.copy()
+      update_count(self.posLikelihood, negDict_copy)
 
-    posDict_copy = {x:0 for x in self.posDict}
-    negDict_copy = {x:0 for x in self.negDict}
-    
-    ## FIND NON-OVERLAPS
-    self.posLikelihood = self.posDict.copy()
-    update_count(self.posLikelihood, negDict_copy)
+      self.negLikelihood = self.negDict.copy()
+      update_count(self.negLikelihood, posDict_copy)
 
-    self.negLikelihood = self.negDict.copy()
-    update_count(self.negLikelihood, posDict_copy)
+      if self.BIAS:
+        self.negLikelihood = {x:(self.negLikelihood.get(x) * 2 if self.negLikelihood.get(x) != 0 else self.negLikelihood.get(x)) for x in self.negLikelihood}
+        self.posLikelihood = {x:(self.posLikelihood.get(x) * 2 if self.posLikelihood.get(x) != 0 else self.posLikelihood.get(x)) for x in self.posLikelihood}
+        
+      sum_pos = sum(self.posLikelihood.values())
+      sum_neg = sum(self.negLikelihood.values())
+      cardinal = len(self.totalDict)
 
-    sum_pos = sum(self.posLikelihood.values())
-    sum_neg = sum(self.negLikelihood.values())
-    cardinal = len(self.totalDict)
-
-    ## LAPLACE SMOOTHING:
-    self.posLikelihood = {x:math.log((self.posLikelihood.get(x)+1)/(sum_pos + cardinal)) for x in self.posLikelihood}
-    self.negLikelihood = {x:math.log((self.negLikelihood.get(x)+1)/(sum_neg + cardinal)) for x in self.negLikelihood}
+      ## LAPLACE SMOOTHING:
+      self.posLikelihood = {x:math.log((self.posLikelihood.get(x)+1)/(sum_pos + cardinal)) for x in self.posLikelihood}
+      self.negLikelihood = {x:math.log((self.negLikelihood.get(x)+1)/(sum_neg + cardinal)) for x in self.negLikelihood}
 
     all_words = self.totalDict.keys()
     pos_value = self.posPrior
     neg_value = self.negPrior
+
+    if self.BIGRAM:
+      words = n_grams(words, 2)
 
     for category in ("pos", "neg"):
         for word in words:
@@ -130,59 +156,63 @@ class NaiveBayes:
      * Returns nothing
     """
     ## REMOVE PUNCTUATION:
+
+    if self.BEST_MODEL:
+      self.FILTER_STOP_WORDS = False
+      self.BOOLEAN_NB = True #
+      self.NEGATION = True # 
+      self.BIGRAM = True #
+      self.BIAS = True #
+    
+    if self.FILTER_STOP_WORDS:
+      new_stop_list = [word for word in self.stopList if word not in negations]
+
+      words = [word for word in words if word not in new_stop_list]
+
+    if self.NEGATION:
+      negate = False
+      counter = 0
+      for ind, word in enumerate(words):
+        # if word in ["!", ".", "(", ")", "?", "-", "'", '"', ":", ";"]:
+        #   negate = False
+        if negate:
+          words[ind] = "NOT_" + word
+          negate = False
+        if word in negations:
+          negate = True 
+
     words = [word for word in words if word not in ["!", ",", ".", "(", ")", "?", "-", "'", '"', ":", ";"]]
-    
-    if self.BOOLEAN_NB == True:
-      words = [word for word in set(words)]
-    
-    #word_count = collections.Counter(words)
-    
 
-    if klass == "pos":
-      self.posCount += 1
-      for word in words:
-        self.posDict[word] = self.posDict.get(word, 0) + 1
-        self.posCountWord += 1
-        self.totalDict[word] = self.totalDict.get(word, 0) + 1
-      #self.posPrior = math.log(self.posCount / (self.posCount + self.negCount))
-      #update_count(self.posDict, word_count) #update_count(self.posDict, word_count)
+    if self.BIGRAM:
+      words = n_grams(words, 2)
+
+    if self.BOOLEAN_NB:
+      words = {word:1 for word in set(words)}
+      if klass == "pos":
+        self.posCount += 1
+        update_count(self.posDict, words)
+        update_count(self.totalDict, words)
+        self.posCountWord += len(words)
+      else:
+        self.negCount += 1
+        update_count(self.negDict, words)
+        update_count(self.totalDict, words)
+        self.negCountWord += len(words)
+
     else:
-      self.negCount += 1
-      for word in words:
-        self.negDict[word] = self.negDict.get(word, 0) + 1
-        self.negCountWord += 1
-        self.totalDict[word] = self.totalDict.get(word, 0) + 1
-      #self.negPrior = math.log(self.negCount / (self.posCount + self.negCount))
-    #   update_count(self.negDict, word_count) #update_count(self.negDict, word_count)
-    
-    # update_count(self.totalDict, word_count)
-    # #self.cardinal = len(self.totalDict)
-
-    # ## REVERT BACK TO DICTS:
-    # posDict_copy = collections.Counter({x:0 for x in dict(self.posDict)})
-    # negDict_copy = collections.Counter({x:0 for x in dict(self.negDict)})
-    
-    # ## FIND NON-OVERLAPS
-    # self.posLikelihood = self.posDict.copy()
-    # update_count(self.posLikelihood, negDict_copy)
-
-    # self.negLikelihood = self.negDict.copy()
-    # update_count(self.negLikelihood, posDict_copy)
-
-    # new_pos = dict(self.posLikelihood)
-    # new_neg = dict(self.negLikelihood)
-
-    # sum_pos = sum(new_pos.values())
-    # sum_neg = sum(new_neg.values())
-    # cardinal = len(self.totalDict)
-
-    # ## LAPLACE SMOOTHING:
-    # self.posLikelihood = {x:math.log((new_pos.get(x)+1)/(sum_pos + cardinal)) for x in new_pos}
-    # self.negLikelihood = {x:math.log((new_neg.get(x)+1)/(sum_neg + cardinal)) for x in new_neg}
-
-
-
-      
+      if klass == "pos":
+        self.posCount += 1
+        for word in words:
+          self.posDict[word] = self.posDict.get(word, 0) + 1
+          self.posCountWord += 1
+          self.totalDict[word] = self.totalDict.get(word, 0) + 1
+        
+      else:
+        self.negCount += 1
+        for word in words:
+          self.negDict[word] = self.negDict.get(word, 0) + 1
+          self.negCountWord += 1
+          self.totalDict[word] = self.totalDict.get(word, 0) + 1
 
   # END TODO (Modify code beyond here with caution)
   #############################################################################
@@ -355,6 +385,7 @@ def test10Fold(args, FILTER_STOP_WORDS, BOOLEAN_NB, BEST_MODEL):
     for example in split.test:
       words = example.words
       guess = classifier.classify(words)
+      classifier.newFold = False
       if example.klass == guess:
         accuracy += 1.0
 
@@ -395,21 +426,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-# nb = NaiveBayes()
-# text_test = nb.readFile(r"C:\Users\emilr\OneDrive - Aarhus universitet\Uni\CogSci - Master's-DESKTOP-TNA0AED\Study Group Exercises\FirstSemester\NLP\IMDB_reviews-master\arch_files\data\imdb1\pos\cv000_29590.txt")
-# nb.addExample("pos", text_test)
-
-# test_1 = collections.Counter({"a":1, "b":1})
-# test_2 = collections.Counter({"a":1, "d":0})
-
-# test_1.update(test_2)
-
-# test_1
-
-testy = collections.Counter({})
-testy.update(collections.Counter({"a":2, "b":2}))
-
-update_count(testy, collections.Counter({"a":3, "b":4}))
-
-testy
