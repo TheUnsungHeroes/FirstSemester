@@ -18,6 +18,26 @@ from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.naive_bayes import MultinomialNB
 
+def segmentWords(s):
+    """
+     * Splits lines on whitespace for file reading
+    """
+    return s.split()
+
+def readFile(fileName):
+    """
+     * Code for reading a file.  you probably don't want to modify anything here, 
+     * unless you don't like the way we segment files.
+    """
+    contents = []
+    f = open(fileName)
+    for line in f:
+      contents.append(line)
+    f.close()
+    result = segmentWords('\n'.join(contents)) 
+    return result
+
+
 
 def read_imdb():
     """
@@ -58,7 +78,7 @@ if __name__ == "__main__":
     X_train, X_test, y_train, y_test = train_test_split(imdb.text, imdb.tag)
 
     # Create bag-of-words
-    count_vect = CountVectorizer(analyzer='word', binary=True, ngram_range=(1, 2))
+    count_vect = CountVectorizer(analyzer='word', binary=True, ngram_range=(1, 2),stop_words=stop_words)
     X_train_counts = count_vect.fit_transform(X_train)
 
     # TASK 2: What does the shape of the X_train_counts denote
@@ -110,20 +130,37 @@ if __name__ == "__main__":
     '''
     # TASK 6 (optional): What about binary Naive bayes, stopword lists etc.
 
-
+n_estimators_list = [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
+folds_seed = [12, 4, 6, 83, 33, 77, 81, 42, 91, 100] #changed 90 to 91
+folds_seed = [x+1 for x in folds_seed]
 from sklearn.ensemble import RandomForestClassifier
-clf = RandomForestClassifier(max_depth=2, random_state=0)
+list_of_acc = [] #USE ONCE - WITH CAUTION
 
-# Scikit learn
-X_train, X_test, y_train, y_test = train_test_split(imdb.text, imdb.tag)
+if len(list_of_acc) < 10:
+    list_of_prev_acc = [0 for x in range(10)]
+else:
+    list_of_prev_acc = [x for x in list_of_acc]
+list_of_acc = []
+for i in range(len(folds_seed)):
+    clf = RandomForestClassifier(random_state=folds_seed[i], n_estimators=500, criterion = "entropy", warm_start=True,bootstrap = False, n_jobs=-1)
 
-# Create bag-of-words
-count_vect = CountVectorizer()
-X_train_counts = count_vect.fit_transform(X_train)
-X_test_counts = count_vect.transform(X_test)
+    # Scikit learn
+    X_train, X_test, y_train, y_test = train_test_split(imdb.text, imdb.tag, random_state = folds_seed[i])
+    
+    # Stop Words
+    #stop_words = list(set(readFile('english.stop')))
+    #short_stop_words = ['in', 'of', 'at', 'a', 'the']
+    
+    # Create bag-of-words
+    count_vect = CountVectorizer(binary=True, ngram_range=(1, 2))
+    X_train_counts = count_vect.fit_transform(X_train)
+    X_test_counts = count_vect.transform(X_test)
 
-clf.fit(X_train_counts, y_train_test)
-predictions = clf.predict(X_test_counts)
+    clf.fit(X_train_counts, y_train)
+    predictions = clf.predict(X_test_counts)
 
-acc = sum(predictions == y_test) / len(y_test)
-print(f"Our model obtained a performance accuracy of {acc}")
+    acc = sum(predictions == y_test) / len(y_test)
+    list_of_acc.append(acc)
+    print(f"RF no. {i} got {acc}.   Relative to previous model:  {round(acc-list_of_prev_acc[i], 3)}!")
+
+print("That's an average of", round(sum(list_of_acc)/len(list_of_acc), 3))
